@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+
 /// <summary>
 /// Programa com função truncate.
 /// </summary>
@@ -17,29 +19,54 @@ namespace ConsoleApp1
     {
         public static decimal RealTrunck(this decimal value, int number)
         {
-            var strZeros = new String('0', (number + 2));
-            decimal MaxDecToCalc = Convert.ToDecimal(String.Concat("1", strZeros, ",", strZeros)) + value;
+            char separator = Convert.ToChar(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
 
-            if (MaxDecToCalc.ToString().IndexOf(",") == -1)
+            var strZeros = new String('0', (number + 2));
+            decimal MaxDecToCalc = Convert.ToDecimal(String.Concat("1", strZeros, separator, strZeros)) + value;
+
+            if (MaxDecToCalc.ToString().IndexOf(separator) == -1)
             {
                 return value;
             }
 
-            var lst = MaxDecToCalc.ToString().Split(',');
+            var lst = MaxDecToCalc.ToString().Split(separator);
 
             while (lst[1].Length < number)
             {
                 lst[1] += "0";
             }
 
-            var retorno = string.Concat(Convert.ToInt32(lst[0].Substring(1)).ToString(), ",", lst[1].Substring(0, number));
+            var stringConcat = string.Concat(Convert.ToInt32(lst[0].Substring(1)).ToString(), separator, lst[1].Substring(0, number));
 
-            return Convert.ToDecimal(retorno);
+            int p = stringConcat.Length;
+
+            while ((stringConcat[p-1] == '0') && p >= 0)
+            {
+                p--;
+            }
+
+            stringConcat = stringConcat.Substring(0, p);
+
+            return Convert.ToDecimal(stringConcat);
         }
 
-        public static string RealTrunckToString(this decimal value, int number, bool forceZeros)
+        public static string RealTrunckToString(this decimal value, int number, bool forceZeros = false)
         {
-            return (forceZeros ? value.RealTrunck(number).ToString('.' + new String('0', number)) : value.RealTrunck(number).ToString());
+            char separator = Convert.ToChar(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+
+            var valueTrunc = value.RealTrunck(number);
+            string result;
+
+            if (forceZeros)
+            {
+                result = valueTrunc.ToString(string.Concat("N", number.ToString()));
+            }
+            else
+            {
+                result = valueTrunc.ToString();
+            }
+
+            return result;
         }
     }
 
@@ -49,13 +76,13 @@ namespace ConsoleApp1
         {
             List<decimal> lst = new List<decimal>
             {
-                10.45678m,
-                0.45678m,
-                10.45m,
-                10m,
-                .45m,
-                10.456999999m,
-                1012345.456999999m
+                10.45678m
+                ,0.45678m
+                ,10.45m
+                ,10m
+                ,.45m
+                ,10.456999999m
+                ,1012345.456999999m
             };
 
             foreach (var item in lst)
@@ -63,69 +90,13 @@ namespace ConsoleApp1
                 //Console.WriteLine(RealDecTrunc(item, 4));
                 //Console.WriteLine("Item : {0} | RealDecTrunc = {1}",item, DecimalTrunck(item, 4).ToString());
 
-                Console.WriteLine("Item : {0} | RealDecTrunc = {1}", item, item.RealTrunck(4));
-                Console.WriteLine("Item : {0} | RealDecTrunc = {1}", item, item.RealTrunckToString(4, true));
+
+                Console.WriteLine("V: {0} |RealTrunck= {1} |RealTrunckToString= {2} |ForceZeroOn= {3} |N4= {4}", item, item.RealTrunck(4), item.RealTrunckToString(4, true), item.RealTrunckToString(4, false), item.ToString("N4"));
                 Console.WriteLine(new string('-', 80));
 
             }
 
             Console.ReadKey();
         }
-
-        /// <summary>
-        /// Truncar um numero decimal como apresentado, sem arredondamento.
-        /// </summary>
-        /// <param name="value">Valor a ser truncado</param>
-        /// <param name="number">quantidade de casas decimais</param>
-        /// <param name="ForceZeros">se o numero tiver menos casas decimais, o mesmo ira forcar a quantidade de casas conforme casas informadas</param>
-        /// <returns>Numero truncado</returns>
-        static string RealDecTrunc(decimal value, int number, bool ForceZeros = true)
-        {
-            var strZeros = new String('0', (number + 2));
-            decimal MaxDecToCalc = Convert.ToDecimal(String.Concat("1", strZeros, ".", strZeros)) + value;
-
-            if (MaxDecToCalc.ToString().IndexOf(",") == -1)
-            {
-                return (ForceZeros ? value.ToString('.' + new String('0', number)) : value.ToString());
-            }
-
-            var lst = MaxDecToCalc.ToString().Split(',');
-
-            while (lst[1].Length < number)
-            {
-                lst[1] += "0";
-            }
-
-            return string.Concat(Convert.ToInt32(lst[0].Substring(1)).ToString(), ".", lst[1].Substring(0, number));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="number"></param>
-        /// <returns></returns>
-        static decimal DecimalTrunck(decimal value, int number)
-        {
-            var strZeros = new String('0', (number + 2));
-            decimal MaxDecToCalc = Convert.ToDecimal(String.Concat("1", strZeros, ",", strZeros)) + value;
-
-            if (MaxDecToCalc.ToString().IndexOf(",") == -1)
-            {
-                return value;
-            }
-
-            var lst = MaxDecToCalc.ToString().Split(',');
-
-            while (lst[1].Length < number)
-            {
-                lst[1] += "0";
-            }
-
-            var retorno = string.Concat(Convert.ToInt32(lst[0].Substring(1)).ToString(), ",", lst[1].Substring(0, number));
-
-            return Convert.ToDecimal(retorno);
-        }
-
     }
 }
