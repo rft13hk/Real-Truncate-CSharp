@@ -87,13 +87,9 @@ namespace ConsoleApp1
 
             foreach (var item in lst)
             {
-                //Console.WriteLine(RealDecTrunc(item, 4));
-                //Console.WriteLine("Item : {0} | RealDecTrunc = {1}",item, DecimalTrunck(item, 4).ToString());
-
-
-                Console.WriteLine("V: {0} |RealTrunck= {1} |RealTrunckToString= {2} |ForceZeroOn= {3} |N4= {4}", item, item.RealTrunck(4), item.RealTrunckToString(4, true), item.RealTrunckToString(4, false), item.ToString("N4"));
+                //Console.WriteLine("V: {0} |RealTrunck= {1} |RealTrunckToString= {2} |ForceZeroOn= {3} |N4= {4}", item, item.RealTrunck(4), item.RealTrunckToString(4, true), item.RealTrunckToString(4, false), item.ToString("N4"));
+                Console.WriteLine("Va= {0} |RealTrunck= {1} |RealTrunckToString= {2} |ForceZeroOn= {3} |N4= {4}", item, item.RealTrunck(4), item.RealTrunckToString(4, true), item.RealTrunckToString(4, false), item.ToString("N4"));
                 Console.WriteLine(new string('-', 80));
-
             }
 
             Console.ReadKey();
