@@ -17,8 +17,13 @@ namespace ConsoleApp1
     //{
     public static class Decimal
     {
-        public static decimal RealTrunck(this decimal value, int number)
+        public static decimal RealTrunck(this decimal value, int precision)
         {
+            if (precision < 0)
+            {
+                throw new ArgumentOutOfRangeException("Precision cannot be less than zero");
+            }
+
             char separator = Convert.ToChar(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
 
             var valueAbs = Math.Abs(value);
@@ -42,12 +47,12 @@ namespace ConsoleApp1
 
             var lst = MaxDecToCalc.ToString().Split(separator);
 
-            while (lst[1].Length < number)
+            while (lst[1].Length < precision)
             {
                 lst[1] += "0";
             }
 
-            var stringConcat = string.Concat(Convert.ToInt32(lst[0].Substring(1)).ToString(), separator, lst[1].Substring(0, number));
+            var stringConcat = string.Concat(Convert.ToInt32(lst[0].Substring(1)).ToString(), separator, lst[1].Substring(0, precision));
 
             int p = stringConcat.Length;
 
@@ -62,21 +67,58 @@ namespace ConsoleApp1
             return result;
         }
 
-        public static string RealTrunckToString(this decimal value, int number, bool forceZeros = false)
+        public static string RealTrunckToString(this decimal value, int precision, bool forceZeros = false)
         {
+            if (precision < 0)
+            {
+                throw new ArgumentOutOfRangeException("Precision cannot be less than zero");
+            }
+
             char separator = Convert.ToChar(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
 
-            var valueTrunc = value.RealTrunck(number);
+            var valueTrunc = value.RealTrunck(precision);
             string result;
 
             if (forceZeros)
             {
-                result = valueTrunc.ToString(string.Concat("N", number.ToString()));
+                result = valueTrunc.ToString(string.Concat("N", precision.ToString()));
             }
             else
             {
                 result = valueTrunc.ToString();
             }
+
+            return result;
+        }
+
+        public static decimal TruncateDecimal(this decimal value, int precision)
+        {
+            if (precision < 0)
+            {
+                throw new ArgumentOutOfRangeException("Precision cannot be less than zero");
+            }
+
+            decimal step = (decimal)Math.Pow(10, precision);
+            decimal tmp = Math.Truncate(step * value);
+            return tmp / step;
+        }
+
+        public static decimal TruncateDecimal2(this decimal value, int decimalPlaces)
+        {
+            if (decimalPlaces < 0)
+            {
+                throw new ArgumentOutOfRangeException("Precision cannot be less than zero");
+            }
+
+            decimal integralValue = Math.Truncate(value);
+
+            decimal fraction = value - integralValue;
+
+            decimal factor = (decimal)Math.Pow(10, decimalPlaces);
+
+            decimal truncatedFraction = Math.Truncate(fraction * factor) / factor;
+
+            decimal result = integralValue + truncatedFraction;
 
             return result;
         }
@@ -109,7 +151,8 @@ namespace ConsoleApp1
             foreach (var item in lst)
             {
                 //Console.WriteLine("V: {0} |RealTrunck= {1} |RealTrunckToString= {2} |ForceZeroOn= {3} |N4= {4}", item, item.RealTrunck(4), item.RealTrunckToString(4, true), item.RealTrunckToString(4, false), item.ToString("N4"));
-                Console.WriteLine("Va= {0} |RealTrunck= {1} |RealTrunckToString= {2} |ForceZeroOn= {3} |N4= {4}", item.Key , item.Key.RealTrunck(4), item.Key.RealTrunckToString(4, true), item.Key.RealTrunckToString(4, false), item.Key.ToString("N4"));
+                //Console.WriteLine("Va= {0} |RealTrunck= {1} |RealTrunckToString= {2} |ForceZeroOn= {3} |N4= {4}", item.Key , item.Key.RealTrunck(4), item.Key.RealTrunckToString(4, true), item.Key.RealTrunckToString(4, false), item.Key.ToString("N4"));
+                Console.WriteLine("Va= {0} |RealTrunck= {1} |RealTrunckToString= {2} |ForceZeroOn= {3} |N4= {4}", item.Key, item.Key.TruncateDecimal(4), item.Key.RealTrunckToString(4, true), item.Key.RealTrunckToString(4, false), item.Key.ToString("N4"));
                 Console.WriteLine(new string('-', 80));
             }
 
